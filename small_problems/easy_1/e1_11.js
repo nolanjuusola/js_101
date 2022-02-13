@@ -7,3 +7,5 @@ let utf16Value = x => {
   return total
 }
 console.log(utf16Value(string))
+
+

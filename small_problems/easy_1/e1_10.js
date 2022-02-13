@@ -7,4 +7,4 @@ let multiSum = x => {
   } 
   console.log(total)
 }
-multiSum(20)
+
