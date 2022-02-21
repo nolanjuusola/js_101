@@ -19,14 +19,33 @@ const VALID_CHOICES = {
   k: 'spock'
 };
 
+const WIN_CONDITIONS = {
+  rock: ['scissors', 'lizard'],
+  paper: ['rock', 'spock'],
+  scissors: ['paper', 'lizard'],
+  lizard: ['spock', 'paper'],
+  spock: ['scissors', 'rock']
+};
+
 let validChoiceKeys = Object.keys(VALID_CHOICES);
 let validChoiceValues = Object.values(VALID_CHOICES);
 
-let prompt = message => {
-  console.log(`=> ${message}`);
-};
+let prompt = message => console.log(`=> ${message}`);
 
-prompt('Welcome to Rock Paper Scissors Lizard Spock! Try to beat the Computer in a best of 5.');
+prompt('Welcome to Rock Paper Scissors Lizard Spock!');
+
+prompt('Enter your name:');
+let userName = readline.question();
+
+let winningScore;
+function setWinningScore() {
+  prompt('Enter number of wins to determine the match winner:');
+  winningScore = Number(readline.question());
+  while (isNaN(winningScore)) {
+    prompt('Please enter a valid number:');
+    winningScore = readline.question();
+  }
+}
 
 //display the choices to the user
 function displayChoices() {
@@ -74,11 +93,7 @@ function reset() {
 //implement game logic
 function dipslayWinner(userChoice, computerChoice) {
   prompt(`You chose ${userChoice}, the computer chose ${computerChoice}`);
-  if ((userChoice === 'rock' && (computerChoice === 'scissors' || computerChoice === 'lizard')) ||
-     (userChoice === 'paper' && (computerChoice === 'rock' || computerChoice === 'spock')) ||
-     (userChoice === 'scissors' && (computerChoice === 'paper' || computerChoice === 'lizard')) ||
-     (userChoice === 'lizard' && (computerChoice === 'spock' || computerChoice === 'paper')) ||
-     (userChoice === 'spock' && (computerChoice === 'scissors' || computerChoice === 'rock'))) {
+  if (WIN_CONDITIONS[userChoice].includes(computerChoice)) {
     prompt('You won!');
     userWinCount += 1;
   } else if (userChoice === computerChoice) {
@@ -87,40 +102,49 @@ function dipslayWinner(userChoice, computerChoice) {
     prompt('Computer won.');
     computerWinCount += 1;
   }
-  round += 1;
+}
+
+function nextRound() {
+  prompt('Press enter to proceed to the next round.');
+  readline.question();
 }
 
 //determine if a champion has been decided
 function determineChampion() {
-  if (userWinCount === 3) {
+  if (userWinCount === winningScore) {
     prompt('You are the Champion!');
-  } else if (computerWinCount === 3) {
+  } else if (computerWinCount === winningScore) {
     prompt('The computer is the champion.');
-  }
+  } else nextRound();
 }
 
 //let the user restart the game
 let restartGame = true;
 function playAgain() {
-  prompt('Would you like to play again?(y,n)');
-  let yOrN = readline.question();
-  while (yOrN !== 'n' && yOrN !== 'y') {
-    prompt('Please answer y or n.');
-    yOrN = readline.question();
+  prompt('Would you like to play again?');
+  let yOrN = readline.question().toLowerCase();
+  while (yOrN[0] !== 'n' && yOrN[0] !== 'y') {
+    prompt('Please answer yes or no.');
+    yOrN = readline.question().toLowerCase();
   }
-  if (yOrN !== 'y') {
+  if (yOrN[0] !== 'y') {
     restartGame = false;
     prompt('Goodbye!');
-  } else if (yOrN === 'y') {
+  } else if (yOrN[0] === 'y') {
     reset();
   }
 }
 
+function scoreboardDisplay() {
+  prompt(`~-~-~-~-~-~Round ${round}~-~-~-~-~-~-~`);
+  prompt(`Score is ${userName}: ${userWinCount} Computer: ${computerWinCount}`);
+}
+
 //play the game
 while (restartGame) {
-  while (userWinCount < 3 && computerWinCount < 3) {
-    prompt(`~-~-~-~-~-~Round ${round}~-~-~-~-~-~-~`);
-    prompt(`Score is User: ${userWinCount} Computer: ${computerWinCount}`);
+  setWinningScore();
+  while (userWinCount < winningScore && computerWinCount < winningScore) {
+    scoreboardDisplay();
     getUserChoice();
     getComputerChoice();
     dipslayWinner(userChoice, computerChoice);
@@ -128,4 +152,3 @@ while (restartGame) {
   }
   playAgain();
 }
-
