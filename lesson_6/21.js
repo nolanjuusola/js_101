@@ -5,12 +5,10 @@ const VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'
 const GAMESCORE = 21;
 const DEALER_HIT_CAP = GAMESCORE - 4;
 
-
 //declare variables
 let dealerWinCount = 0;
 let playerWinCount = 0;
 let winningScore;
-
 
 let setWinningScore = () => {
   while (true) {
@@ -20,11 +18,15 @@ let setWinningScore = () => {
     console.log("That's not a valid number.");
   }
 };
+let displayWelcomeMessage = () => {
+  console.log(`Welcome to ${GAMESCORE}!`);
+};
 
-console.log(`Welcome to ${GAMESCORE}!`);
-
-console.log("What's your name?");
-let userName = readline.question('');
+let userName;
+let getUserName = () => {
+  console.log("What's your name?");
+  userName = readline.question('');
+};
 
 let dealCard = hand => {
   let suitIndex = Math.floor(Math.random() * SUITS.length);
@@ -61,16 +63,19 @@ let displayHand = (hand, player) => {
     console.log(`${card[1]} of ${card[0]}`);
   });
   console.log(`for a total of ${findPointTotal(hand)}`);
+  console.log('*~*~*~*~*~*~*~*~*~*~*~*~*~*~*');
 };
 
 //asks the player to hit or stay
 
+
 let hitOrStay = () => {
   let hOrS;
+  let validAnswers = ['hit', 'h', 'stay', 's'];
   while (true) {
-    console.log('Hit or Stay? (h, s)');
-    hOrS = readline.question('').toLowerCase()[0];
-    if (hOrS === 'h' || hOrS === 's') break;
+    console.log('Hit or Stay?');
+    hOrS = readline.question('').toLowerCase();
+    if (validAnswers.includes(hOrS)) break;
     console.log('Please enter a valid choice.');
   }
   return hOrS;
@@ -86,6 +91,7 @@ let busted = hand => {
   }
 };
 
+// eslint-disable-next-line max-lines-per-function
 let playerGoes = playerHand => {
   dealCard(playerHand);
   dealCard(playerHand);
@@ -94,15 +100,17 @@ let playerGoes = playerHand => {
   let response;
   while (findPointTotal(playerHand) < GAMESCORE) {
     response = hitOrStay();
-    if (response === 'h') {
+    if (response === 'h' || response === 'hit') {
       let newCard = dealCard(playerHand);
-      console.log(`You drew: ${newCard[1]} of ${newCard[0]}`);
+      console.log(`*~*~*~*~*You drew: ${newCard[1]} of ${newCard[0]}*~*~*~*~*~*~*`);
       displayHand(playerHand, userName);
     }
-    if (response === 's' || busted(playerHand)) break;
+    if (response === 's' || response === 'stay' || busted(playerHand)) break;
   }
   if (findPointTotal(playerHand) === GAMESCORE) {
     console.log(`You got ${GAMESCORE}!`);
+  } else if (findPointTotal(playerHand) > GAMESCORE) {
+    return null;
   }
   return findPointTotal(playerHand);
 };
@@ -149,10 +157,12 @@ let displayWinner = (dealerScore, playerScore) => {
 };
 
 let scoreDisplay = () => {
+  console.log('*~*~*~*~*~*~*~*~*~*~*~*~*~*~*');
   console.log('Match score is:');
   console.log(`${userName}: ${playerWinCount}`);
   console.log(`Dealer: ${dealerWinCount}`);
   console.log(`Match winning score is: ${winningScore}`);
+  console.log('*~*~*~*~*~*~*~*~*~*~*~*~*~*~*');
 };
 
 let nextRound = () => {
@@ -166,8 +176,27 @@ let determineChampion = () => {
   } else return 'Dealer';
 };
 
+let playAgain = () => {
+  let yOrN;
+  let validChoices = ['yes', 'y', 'no', 'n'];
+  while (true) {
+    console.log('Would you like to play again? (y, n)');
+    yOrN = readline.question('').toLowerCase();
+    if (validChoices.includes(yOrN)) break;
+    console.log("That's not a valid input.");
+  }
+  if (yOrN !== 'y' && yOrN !== 'yes') {
+    return false;
+  }
+  return true;
+};
+
+let goAgain = true;
+
 //match loop
-while (true) {
+displayWelcomeMessage();
+getUserName();
+while (goAgain) {
   setWinningScore();
   playerWinCount = 0;
   dealerWinCount = 0;
@@ -203,13 +232,6 @@ while (true) {
     }
   }
   console.log(`${determineChampion()} is the Champion!`);
-  let yOrN;
-  while (true) {
-    console.log('Would you like to play again? (y, n)');
-    yOrN = readline.question('').toLowerCase()[0];
-    if (yOrN === 'y' || yOrN === 'n') break;
-    console.log("That's not a valid input.");
-  }
-  if (yOrN !== 'y') break;
+  goAgain = playAgain();
 }
 console.log('Goodbye!');
